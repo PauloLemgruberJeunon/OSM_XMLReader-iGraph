@@ -27,7 +27,7 @@ class GraphUtils:
                     if str(nd) in my_parser.nodes:
                         lon = my_parser.nodes[str(nd)].lon
                         lat = my_parser.nodes[str(nd)].lat
-                        attri = {"id": nd, "lon": lon, "lat": lat, "my_in_es": "", "my_out_es": ""}
+                        attri = {"id": nd, "lon": lon, "lat": lat, "myines": "", "myoutes": ""}
                         del my_parser.nodes[str(nd)]
                         g.add_vertex(None, **attri)
                         vs_reference[str(nd)] = vs_counter[0]
@@ -58,15 +58,19 @@ class GraphUtils:
                     way.tags["distance"] = d
 
                     g.add_edge(vs1, vs2, **way.tags)
+
+                    # Stores the iGraph Edge id inside the vertex for after eliminate the edges with lower "k"
+                    vs1["myoutes"] += (str(my_es[0]) + "-")
+                    vs2["myines"] += (str(my_es[0]) + "-")
+
                     my_es[0] += 1
-                    vs1["my_in_es"] += (str(my_es[0]) + "-")
-                    vs2["my_out_es"] += (str(my_es[0]) + "-")
+
                     # For streets that supports traffic in both ways
-                    if (not will_print) and 'oneway' in way.tags.keys() and way.tags['oneway'] == "no":
+                    if not will_print and 'oneway' in way.tags.keys() and way.tags['oneway'] == "no":
                         g.add_edge(vs2, vs1, **way.tags)
                         my_es[0] += 1
-                        vs1["my_out_es"] += (str(my_es[0]) + "-")
-                        vs2["my_in_es"] += (str(my_es[0]) + "-")
+                        vs1["myines"] += (str(my_es[0]) + "-")
+                        vs2["myoutes"] += (str(my_es[0]) + "-")
 
         return g
 
@@ -107,10 +111,15 @@ class GraphUtils:
 
     @classmethod
     def test_graph(cls, g):
-        print("\n\n", g.vs[100]["myines"], "\n\n", g.vs[100]["id"])
-        strings = g.vs[100]["myines"].split('-')
+        testNum = 32
+        print("\n\n in_es = ", g.vs[testNum]["myines"], "\n\n my_id = ", g.vs[testNum]["id"])
+        strings = g.vs[testNum]["myines"].split('-')
+        strings2 = g.vs[testNum]["myoutes"].split('-')
+        print("        strings = ", strings)
+        print(g.es[int(strings2[0])])
         print(g.es[int(strings[0])])
-        print("\n Source = ", g.es[int(strings[0])]["source"], " - target = ", g.es[int(strings[0])]["target"])
+        print("\n Source = ", g.es[int(strings[0])].source, " - target = ", g.es[int(strings[0])].target)
+        print("\n Source2 = ", g.es[int(strings2[0])].source, " - target2 = ", g.es[int(strings2[0])].target)
 
     # A class to measure execution time
     class Timer:

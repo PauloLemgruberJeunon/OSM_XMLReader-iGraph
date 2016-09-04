@@ -39,6 +39,8 @@ class Menu:
 
         g = GraphUtils.graph_creator(g, my_parser, will_print)
 
+        GraphUtils.test_graph(g)
+
         if will_save == 'y':
             GraphUtils.save_graph(g)
 
