@@ -11,6 +11,6 @@ if __name__ == '__main__':
             print("\n Wrong input, try again... ")
 
     if choice == 'x':
-        g = Menu.xml_graph()
+        Menu.xml_graph()
     else:
         g = Menu.gml_load_graph()
